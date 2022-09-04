@@ -1,11 +1,12 @@
 import { useSelector, useDispatch } from "react-redux";
-import { addTodo, removeTodo, toggleTodo } from "./store";
+import { addTodo, removeTodo, selectVisibleTodos, setFilter, toggleTodo } from "./store";
 
 export default function App() {
   return (
     <div className="App">
       <h1>Hello Redux Todo</h1>
       <NewTodo />
+      <FilterTodo />
       <TodoList />
     </div>
   );
@@ -29,7 +30,8 @@ const NewTodo = () => {
 };
 
 const TodoList = () => {
-  const todos = useSelector((state) => state);
+  const activeFilter = useSelector(state => state.filter)
+  const todos = useSelector(state => selectVisibleTodos(state, activeFilter));
   const dispatch = useDispatch();
 
   return (
@@ -48,3 +50,30 @@ const TodoList = () => {
     </ul>
   );
 };
+
+const FilterTodo = () => {
+  const dispatch = useDispatch();
+  const activeFilter = useSelector(state => state.filter);
+
+  const handleFilter = (val) => dispatch(setFilter(val));
+
+  return (
+    <div>
+      <button 
+        style={{
+          backgroundColor: activeFilter === 'all' ? 'peru' : 'lightgray',
+        }}
+        onClick={() => handleFilter('all')}>all</button>
+      <button 
+        style={{
+          backgroundColor: activeFilter === 'active' ? 'peru' : 'lightgray',
+        }}
+        onClick={() => handleFilter('active')}>active</button>
+      <button 
+        style={{
+          backgroundColor: activeFilter === 'completed' ? 'peru' : 'lightgray',
+        }}
+        onClick={() => handleFilter('completed')}>completed</button>
+    </div>
+  );
+}

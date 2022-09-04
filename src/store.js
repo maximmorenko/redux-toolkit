@@ -177,7 +177,6 @@ import logger from 'redux-logger';
 // });
 
 
-
 const todoSlice = createSlice({
   name: '@@todos',
   initialState: [],
@@ -208,6 +207,21 @@ const todoSlice = createSlice({
 // во внешнем мире могут понадобиться  єкшны, достанем их из слайса
 export const {addTodo, removeTodo, toggleTodo} = todoSlice.actions;
 
+// создадим слайс для фильтров
+const filterSlise = createSlice({
+  name: '@@filter',
+  initialState: 'all',
+  reducers: {
+    setFilter: (_, action) => {
+      return action.payload;
+    },
+  }
+});
+
+// достанем экшн из слайса
+export const {setFilter} = filterSlise.actions;
+
+
 // в стор передаем редюсер из слайса
 // export const store = createStore(todoSlice.reducer);
 
@@ -215,12 +229,13 @@ export const {addTodo, removeTodo, toggleTodo} = todoSlice.actions;
 // основное отличие от createStore то, что не нужно передавать три параметра, передаем объект настроек
 // с обязательным ключем редюсер
 export const store = configureStore({
-  reducer: todoSlice.reducer,
-  // также можно передать комбаин или сделать его самостоятельно:
-  // reducer: {
-  //   todos: todoSlice.reducer,
-  //   users,
-  // }
+  // если один редюсер то:
+  // reducer: todoSlice.reducer,
+  // также можно передать комбаин или сделать его самостоятельно для нескольких редюсеров:
+  reducer: {
+    todos: todoSlice.reducer,
+    filter: filterSlise.reducer,
+  },
 
   // также можно передать (включить девтулс) указав true
   devTools: true,
@@ -234,3 +249,20 @@ export const store = configureStore({
   preloadedState: [], // оставим пока пустой
   enhancers: [], // для внешних дополнительных библиотек есть ключ енхенсер
 })
+
+export const selectVisibleTodos = (state, filter) => {
+  switch (filter) {
+    case 'all': {
+      return state.todos;
+    }
+    case 'active': {
+      return state.todos.filter(todo => !todo.completed);
+    }
+    case 'completed': {
+      return state.todos.filter(todo => todo.completed);
+    }
+    default: {
+      return state.todos;
+    }
+  }
+}
