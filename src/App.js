@@ -1,7 +1,5 @@
 import { useSelector, useDispatch } from "react-redux";
-import { addTodo, removeTodo, toggleTodo } from "./store2";
-
-import "./index.css";
+import { addTodo, removeTodo, toggleTodo } from "./store";
 
 export default function App() {
   return (
