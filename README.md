@@ -34,3 +34,6 @@
 - redux
 - redux-thank
 - reselect
+
+### Синхронизация Redux и localStorage с redux-persist
+- npm i redux-persist

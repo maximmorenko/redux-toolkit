@@ -1,4 +1,5 @@
 import {createSlice, nanoid} from '@reduxjs/toolkit';
+// import {PURGE} from 'redux-persist'
 
 import {resetToDefault} from '../Reset/reset-action';
 
@@ -33,6 +34,7 @@ const todoSlice = createSlice({
       .addCase(resetToDefault, () => {
         return []
       })
+      // .addCase(PURGE, () => {})
   }
 });
 export const {addTodo, removeTodo, toggleTodo} = todoSlice.actions;
