@@ -1,5 +1,6 @@
 import { createStore } from "redux";
-import { nanoid, createSlice } from "@reduxjs/toolkit";
+import { nanoid, createSlice, configureStore } from "@reduxjs/toolkit";
+import logger from 'redux-logger';
 
 // action creators
 
@@ -208,4 +209,28 @@ const todoSlice = createSlice({
 export const {addTodo, removeTodo, toggleTodo} = todoSlice.actions;
 
 // в стор передаем редюсер из слайса
-export const store = createStore(todoSlice.reducer);
+// export const store = createStore(todoSlice.reducer);
+
+// Метод configureStore()
+// основное отличие от createStore то, что не нужно передавать три параметра, передаем объект настроек
+// с обязательным ключем редюсер
+export const store = configureStore({
+  reducer: todoSlice.reducer,
+  // также можно передать комбаин или сделать его самостоятельно:
+  // reducer: {
+  //   todos: todoSlice.reducer,
+  //   users,
+  // }
+
+  // также можно передать (включить девтулс) указав true
+  devTools: true,
+
+  // Подключение милдвейр
+  // для подключение мидл вейра нужно сделать конкэт к дефолтному массиву мыдлверов
+  // по умолчанию они хранятся в getDefaultMiddlware
+  // подключим логер:
+  middleware: (getDeafaultMiddlware) => getDeafaultMiddlware().concat(logger),
+  // также можно загрузить стейт по умолчанию:
+  preloadedState: [], // оставим пока пустой
+  enhancers: [], // для внешних дополнительных библиотек есть ключ енхенсер
+})

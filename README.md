@@ -26,6 +26,9 @@
 ### Метод configureStore()
 - вместо метода криейт стор
 
+### Добавляем Мидлвейр (логер)
+- npm i redux-logger
+
 ### Dependencies
 - immer
 - redux
