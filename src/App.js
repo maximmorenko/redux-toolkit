@@ -1,5 +1,5 @@
 import { useSelector, useDispatch } from "react-redux";
-import { addTodo, removeTodo, selectVisibleTodos, setFilter, toggleTodo } from "./store";
+import { addTodo, removeTodo, selectVisibleTodos, setFilter, toggleTodo, resetToDefault } from "./store";
 
 export default function App() {
   return (
@@ -8,8 +8,16 @@ export default function App() {
       <NewTodo />
       <FilterTodo />
       <TodoList />
+      <ResetApp />
     </div>
   );
+}
+
+const ResetApp = () => {
+  const dispatch = useDispatch();
+  return (
+    <button onClick={()=>dispatch(resetToDefault())}>reset</button>
+  )
 }
 
 const NewTodo = () => {

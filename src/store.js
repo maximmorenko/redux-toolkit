@@ -1,5 +1,5 @@
 import { createStore } from "redux";
-import { nanoid, createSlice, configureStore } from "@reduxjs/toolkit";
+import { nanoid, createSlice, configureStore, createAction } from "@reduxjs/toolkit";
 import logger from 'redux-logger';
 
 // action creators
@@ -176,6 +176,8 @@ import logger from 'redux-logger';
 //   // },
 // });
 
+// создадим событие, которое будем использоватьв экстаредюсере
+export const resetToDefault = createAction('root/reset-up');
 
 const todoSlice = createSlice({
   name: '@@todos',
@@ -203,6 +205,12 @@ const todoSlice = createSlice({
       todo.completed = !todo.completed;
     },
   },
+  extraReducers: (builder) => {
+    builder
+      .addCase(resetToDefault, () => {
+        return [];
+      })
+  },
 });
 // во внешнем мире могут понадобиться  єкшны, достанем их из слайса
 export const {addTodo, removeTodo, toggleTodo} = todoSlice.actions;
@@ -215,7 +223,13 @@ const filterSlise = createSlice({
     setFilter: (_, action) => {
       return action.payload;
     },
-  }
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(resetToDefault, () => {
+        return 'all';
+      })
+  },
 });
 
 // достанем экшн из слайса
