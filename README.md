@@ -1,4 +1,4 @@
-# Redux Toolkit на примере todo list
+# [Redux Toolkit на примере todo list DEMO](https://maximmorenko.github.io/redux-toolkit/)
 
 ## Сущности Redux Toolkit
 
