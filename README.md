@@ -37,3 +37,12 @@
 
 ### Синхронизация Redux и localStorage с redux-persist
 - npm i redux-persist
+
+# RTK Async Thunk
+
+- Метод createAsyncThunk
+- Использование extraReducers для обработки асинхронной логики
+- Дополнительные возможности для UI
+- Обработка ошибок
+- Отмена запросов
+- Метод createEntityAdapter
