@@ -46,3 +46,15 @@
 - Обработка ошибок
 - Отмена запросов
 - Метод createEntityAdapter
+
+### Локальный сервер
+чтобы работать без ограничений с https://jsonplaceholder.typicode.com/ воспользуемся локальным сервером 
+- установим некоторые зависимости разработчика devDependencies
+- это позволит после запуска npm start запустить json-server на порту 3001
+## установка и запуск локалльного сервера
+## [Локальный сервер для проектов и тестирования](https://www.youtube.com/watch?v=odwOkxkmVH8)
+- npm i -D json-server
+- в корне src создаем файл с даннми db.json и копируем в него нужные данные с jsonplaceholder
+- в данном случае это todos
+- в поле script файла package.json добавлеем директорию "server": "json-server -w server/db.json -p 3001" (путь на наш созданый файл с данными, и указываем порт 3001)
+- npm i -D concurrently@7.0.0

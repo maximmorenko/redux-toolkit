@@ -1,26 +1,21 @@
 {
-  "homepage": "https://maximmorenko.github.io/redux-toolkit",
   "name": "08-rtk",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "-": "^0.0.1",
     "@reduxjs/toolkit": "^1.7.2",
-    "gh-pages": "^4.0.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-redux": "^7.2.6",
-    "react-scripts": "5.0.0",
-    "redux-logger": "^3.0.6",
-    "redux-persist": "^6.0.0"
+    "react-scripts": "5.0.0"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "server": "json-server --watch -p 3001 db.json",
+    "dev": "react-scripts start",
+    "start": "concurrently \"npm run dev\" \"npm run server\"",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d build"
+    "eject": "react-scripts eject"
   },
   "eslintConfig": {
     "extends": [
@@ -39,5 +34,9 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "concurrently": "^7.0.0",
+    "json-server": "^0.17.0"
   }
 }

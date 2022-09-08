@@ -1,14 +1,18 @@
 import { useDispatch } from "react-redux";
 
-import {addTodo} from './todos-slice';
+import {createTodo} from './todos-slice'; //подключим наш санк
 
 export const NewTodo = () => {
   const dispatch = useDispatch();
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    dispatch(addTodo(event.target.title.value));
-    event.target.reset();
+
+    // проверим что в ивент таргите что-то есть
+    if (event.target.title.value) {
+      dispatch(createTodo(event.target.title.value));
+      event.target.reset();
+    }
   };
 
   return (
