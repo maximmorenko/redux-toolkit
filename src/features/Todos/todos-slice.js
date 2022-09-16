@@ -18,11 +18,8 @@ import {resetToDefault} from '../Reset/reset-action';
 //и thankAPI - объект из которокго можно достать dispatch, getState, экстра параметр
 export const createTodo = createAsyncThunk(
   '@@todos/create-todo',
-  async (title, {
-    dispatch,
-  }) => {
-    dispatch({type: 'SET_LOADING'});
-
+  async (title) => {
+    // теперь нам диспатч не нужен
     const res = await fetch('http://localhost:3001/todos', {
       // так как это пост запрос то нужно передать дополнительные параметры
       method: 'POST',
@@ -31,29 +28,23 @@ export const createTodo = createAsyncThunk(
       },
       body: JSON.stringify({title, completed: false})
     })
-    const data = res.json();
-    // вызываем событие и передаем туда полученые данные
-    dispatch(addTodo(data))
+    const data = await res.json();
+    console.log(data);
+    return data;
   }
 );
 
 
 const todoSlice = createSlice({
   name: '@@todos',
-  initialState: [],
+  initialState: {
+    // чтобы воспользоваться ключами-экшнами из этого санка в экстра редюсере
+    entities: [], // наши туду
+    loading: 'idle', // поу молчанию бездействующий (idle), также может быть 'loading'
+    error: null,
+
+  },
   reducers: {
-    addTodo: {
-      reducer: (state, action) => {
-        state.push(action.payload)
-      },
-      prepare: (title) => ({
-        payload: {
-          // убираем id, они будут генерироваться на сервере
-          title,
-          completed: false
-        }
-      })
-    },
     removeTodo: (state, action) => {
       const id = action.payload;
       return state.filter((todo) => todo.id !== id);
@@ -69,6 +60,22 @@ const todoSlice = createSlice({
       .addCase(resetToDefault, () => {
         return []
       })
+      // санк, как объект, помимо вех его свойств, имеет ключи-события: (pending, rejected, fulfilled)
+      // это три разных экшина, которые мы можем добавить и обработать
+      // при событие пендинг (т.е инициирование запроса) обновляем стейт
+      .addCase(createTodo.pending, (state, action) => {
+        state.loading = 'loading';
+        state.error = null;
+      })
+      // если санк вызвал ошибку, то обралатываем событие rejected
+      .addCase(createTodo.rejected, (state, action) => {
+        state.loading = 'idle';
+        state.error = 'something went wrong'; // выводим сообщение
+      })
+      // если все норм и туду создано, то обрабатываем экшн фулфилд, пушим пэйлоад в стейт
+      .addCase(createTodo.fulfilled, (state, action) => {
+        state.entities.push(action.payload)
+      })
   }
 });
 export const {addTodo, removeTodo, toggleTodo} = todoSlice.actions;
@@ -79,13 +86,13 @@ export const todoReducer = todoSlice.reducer;
 export const selectVisibleTodos = (state, filter) => {
   switch (filter) {
     case 'all': {
-      return state.todos;
+      return state.todos.entities; // теперь туду достаем из энтитис
     }
     case 'active': {
-      return state.todos.filter(todo => !todo.completed);
+      return state.todos.entities.filter(todo => !todo.completed); // теперь туду достаем из энтитис
     }
     case 'completed': {
-      return state.todos.filter(todo => todo.completed);
+      return state.todos.entities.filter(todo => todo.completed); // теперь туду достаем из энтитис
     }
     default: {
       return state.todos;
