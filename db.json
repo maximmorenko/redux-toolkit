@@ -24,16 +24,6 @@
       "id": 5,
       "title": "Something new",
       "completed": false
-    },
-    {
-      "title": "asdasd",
-      "completed": false,
-      "id": 6
-    },
-    {
-      "title": "bnbn",
-      "completed": false,
-      "id": 7
     }
   ]
 }

@@ -2,6 +2,18 @@ import {createSlice, createAsyncThunk} from '@reduxjs/toolkit';
 
 import {resetToDefault} from '../Reset/reset-action';
 
+// создадим новый санк для получения всех туду с сервера
+export const loadTodos = createAsyncThunk(
+  '@@todos/load-all',
+  async () => {
+    const res = await fetch('http://localhost:3001/todos');
+    // так как это гет запрос то доп параметров не нужно
+    const data = await res.json();
+    console.log(data);
+
+    return data;
+  }
+);
 
 // раньше создавали санк так:
 //на первом уровне ждеди параметр из UI (title)
@@ -63,14 +75,20 @@ const todoSlice = createSlice({
       // санк, как объект, помимо вех его свойств, имеет ключи-события: (pending, rejected, fulfilled)
       // это три разных экшина, которые мы можем добавить и обработать
       // при событие пендинг (т.е инициирование запроса) обновляем стейт
-      .addCase(createTodo.pending, (state, action) => {
+      // так как прелоадер бульше нужен при загрузке всех туду, по этому заменим санк создания туду на загрузки всех туду
+      .addCase(loadTodos.pending, (state, action) => {
         state.loading = 'loading';
         state.error = null;
       })
       // если санк вызвал ошибку, то обралатываем событие rejected
-      .addCase(createTodo.rejected, (state, action) => {
+      .addCase(loadTodos.rejected, (state, action) => {
         state.loading = 'idle';
         state.error = 'something went wrong'; // выводим сообщение
+      })
+      // добавим кейс при событи удачной загрузки всех туду
+      .addCase(loadTodos.fulfilled, (state, action) => {
+        state.entities = action.payload;
+        state.loading = 'idle'; // также укажем что загрузка закончилась
       })
       // если все норм и туду создано, то обрабатываем экшн фулфилд, пушим пэйлоад в стейт
       .addCase(createTodo.fulfilled, (state, action) => {
