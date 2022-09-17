@@ -1,29 +1,19 @@
 {
   "todos": [
     {
-      "id": 1,
-      "title": "Learn Toolkit",
-      "completed": true
+      "title": "hello",
+      "completed": false,
+      "id": 1
     },
     {
-      "id": 2,
-      "title": "Learn React",
-      "completed": true
+      "title": "хватит работать, пора спать",
+      "completed": false,
+      "id": 2
     },
     {
-      "id": 3,
-      "title": "Learn English",
-      "completed": true
-    },
-    {
-      "id": 4,
-      "title": "Learn Redux",
-      "completed": true
-    },
-    {
-      "id": 5,
-      "title": "Something new",
-      "completed": true
+      "title": "конец урока",
+      "completed": true,
+      "id": 3
     }
   ]
 }

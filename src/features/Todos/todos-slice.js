@@ -69,6 +69,24 @@ export const toggleTodo = createAsyncThunk(
   }
 )
 
+// создадим санк удаления туду
+export const removeTodo = createAsyncThunk(
+  '@@todos/remove-todo',
+  async (id) => {
+    // на входе ждем id из UI
+    // фечем делаем запрос на сервер, ссылка динамическая с добавлением id
+    const res = await fetch('http://localhost:3001/todos/' + id, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+    })
+    await res.json();
+  
+    return id;
+  }
+)
+
 const todoSlice = createSlice({
   name: '@@todos',
   initialState: {
@@ -78,12 +96,7 @@ const todoSlice = createSlice({
     error: null,
 
   },
-  reducers: {
-    removeTodo: (state, action) => {
-      const id = action.payload;
-      return state.filter((todo) => todo.id !== id);
-    },
-  },
+  reducers: {},
   extraReducers: (builder) => {
     builder
       .addCase(resetToDefault, () => {
@@ -119,9 +132,15 @@ const todoSlice = createSlice({
         const index = state.entities.findIndex(todo => todo.id === updatedTodo.id);
         state.entities[index] = updatedTodo;
       })
+      // кейс на удаление туду
+      .addCase(removeTodo.fulfilled, (state, action) => {
+        // перезапишим ентитис в стейте
+        // и отфильтруем, проверим айди каждого елемената на равенство с удаленным в action.payload
+        state.entities = state.entities.filter(todo => todo.id !== action.payload)
+      })
   }
 });
-export const {removeTodo} = todoSlice.actions;
+//export const {removeTodo} = todoSlice.actions;
 
 export const todoReducer = todoSlice.reducer;
 
