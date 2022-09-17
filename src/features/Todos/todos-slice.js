@@ -41,11 +41,33 @@ export const createTodo = createAsyncThunk(
       body: JSON.stringify({title, completed: false})
     })
     const data = await res.json();
-    console.log(data);
+    //console.log(data);
     return data;
   }
 );
 
+// создадим новый санк для переключения туду на завершенные 
+export const toggleTodo = createAsyncThunk(
+  '@@todos/toggle-todo',
+  async (id, {getState}) => {
+    // на входе ждем id из UI и стейт,
+    // в стейте найдем туду с id равным полученому id из вне
+    const todo = getState().todos.entities.find(item => item.id === id);
+
+    // фечем делаем запрос на сервер, ссылка динамическая с добавлением id, также добавим настройки
+    const res = await fetch('http://localhost:3001/todos/' + id, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({completed: !todo.completed}), // в боди должно поменяться поле completed, поэтому передеем только его, 
+      // остальные пропускаем. Оно должно поменяться на противоположное
+    })
+    const data = await res.json();
+    //console.log(data);
+    return data;
+  }
+)
 
 const todoSlice = createSlice({
   name: '@@todos',
@@ -60,11 +82,6 @@ const todoSlice = createSlice({
     removeTodo: (state, action) => {
       const id = action.payload;
       return state.filter((todo) => todo.id !== id);
-    },
-    toggleTodo: (state, action) => {
-      const id = action.payload;
-      const todo = state.find((todo) => todo.id === id);
-      todo.completed = !todo.completed;
     },
   },
   extraReducers: (builder) => {
@@ -94,9 +111,17 @@ const todoSlice = createSlice({
       .addCase(createTodo.fulfilled, (state, action) => {
         state.entities.push(action.payload)
       })
+      // добавим кейс на событие тугл
+      .addCase(toggleTodo.fulfilled, (state, action) => {
+        // достанем из пецлоад обновленный туду
+        const updatedTodo = action.payload;
+
+        const index = state.entities.findIndex(todo => todo.id === updatedTodo.id);
+        state.entities[index] = updatedTodo;
+      })
   }
 });
-export const {addTodo, removeTodo, toggleTodo} = todoSlice.actions;
+export const {removeTodo} = todoSlice.actions;
 
 export const todoReducer = todoSlice.reducer;
 

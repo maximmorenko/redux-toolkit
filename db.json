@@ -3,7 +3,7 @@
     {
       "id": 1,
       "title": "Learn Toolkit",
-      "completed": false
+      "completed": true
     },
     {
       "id": 2,
@@ -13,7 +13,7 @@
     {
       "id": 3,
       "title": "Learn English",
-      "completed": false
+      "completed": true
     },
     {
       "id": 4,
@@ -23,7 +23,7 @@
     {
       "id": 5,
       "title": "Something new",
-      "completed": false
+      "completed": true
     }
   ]
 }
