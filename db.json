@@ -7,12 +7,12 @@
     },
     {
       "title": "хватит работать, пора спать",
-      "completed": false,
+      "completed": true,
       "id": 2
     },
     {
       "title": "конец урока",
-      "completed": true,
+      "completed": false,
       "id": 3
     }
   ]
