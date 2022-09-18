@@ -138,6 +138,20 @@ const todoSlice = createSlice({
         // и отфильтруем, проверим айди каждого елемената на равенство с удаленным в action.payload
         state.entities = state.entities.filter(todo => todo.id !== action.payload)
       })
+      // проверяем окончание action.type, если оно = pending, то для вех этих экшнов выполняется одно и то же действие
+      .addMatcher((action) => action.type.endsWith('/pending'), (state, action) => {
+        state.loading = 'loading';
+        state.error = null;
+      }) 
+      // случай с ошибкой
+      .addMatcher((action) => action.type.endsWith('/rejected'), (state, action) => {
+        state.loading = 'idle';
+        state.error = 'ERR0R';
+      })
+      // случай с fulfilled
+      .addMatcher((action) => action.type.endsWith('/fulfilled'), (state, action) => {
+        state.loading = 'idle';
+      })
   }
 });
 //export const {removeTodo} = todoSlice.actions;
