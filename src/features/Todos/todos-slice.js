@@ -5,13 +5,24 @@ import {resetToDefault} from '../Reset/reset-action';
 // создадим новый санк для получения всех туду с сервера
 export const loadTodos = createAsyncThunk(
   '@@todos/load-all',
-  async () => {
-    const res = await fetch('http://localhost:3001/todos');
-    // так как это гет запрос то доп параметров не нужно
-    const data = await res.json();
-    console.log(data);
+  // второй способ обработки ошибок
+  async (_, {rejectWithValue}) => {
+    // на входе два параметра, первый - строка из UI, в данном случае пропуск
+    // второй - thankAPI объект, в котором одно из полей rejectWithValue (с помощью него можно генерировать ошибку)
+    // чтобы воспользоваться rejectWithValue нужно использовать конструкцию трай кетч
+    try {
+      // попытайся (try) сделать это:
 
-    return data;
+      const res = await fetch('http://localhost:3001/todos');
+      // так как это гет запрос то доп параметров не нужно
+      const data = await res.json();
+      return data;
+
+    } catch (err) {
+      // если не получится, то поймай (catch) ошибку и верни вызов хелпера передав в него конкретную ошибку rejectWithValue(err)
+      return rejectWithValue('Failed to fetch all todos.');
+    }
+
   }
 );
 
@@ -146,7 +157,9 @@ const todoSlice = createSlice({
       // случай с ошибкой
       .addMatcher((action) => action.type.endsWith('/rejected'), (state, action) => {
         state.loading = 'idle';
-        state.error = 'ERR0R';
+        //state.error = action.error.message; // достанем текст ошибки из экшна
+        // если мы используем подход с rejectWithValue(err), то текст ошибки должны доставать из пейлоада
+        state.error = action.payload || action.error.message; // если в рейлоаде что-то есть, то берем ошибку от туда, если нет, то из экшна
       })
       // случай с fulfilled
       .addMatcher((action) => action.type.endsWith('/fulfilled'), (state, action) => {
