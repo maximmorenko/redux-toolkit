@@ -7,13 +7,18 @@
     },
     {
       "title": "хватит работать, пора спать",
-      "completed": true,
+      "completed": false,
       "id": 2
     },
     {
       "title": "конец урока",
       "completed": false,
       "id": 3
+    },
+    {
+      "title": "morning is coming",
+      "completed": true,
+      "id": 4
     }
   ]
 }

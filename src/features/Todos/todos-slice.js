@@ -6,23 +6,20 @@ import {resetToDefault} from '../Reset/reset-action';
 export const loadTodos = createAsyncThunk(
   '@@todos/load-all',
   // второй способ обработки ошибок
-  async (_, {rejectWithValue}) => {
+  async (_, {
+    rejectWithValue,
+    extra: api, //достанем екстра параметр и переименуем в апи
+  }) => {
     // на входе два параметра, первый - строка из UI, в данном случае пропуск
     // второй - thankAPI объект, в котором одно из полей rejectWithValue (с помощью него можно генерировать ошибку)
     // чтобы воспользоваться rejectWithValue нужно использовать конструкцию трай кетч
     try {
       // попытайся (try) сделать это:
-
-      const res = await fetch('http://localhost:3001/todos');
-      // так как это гет запрос то доп параметров не нужно
-      const data = await res.json();
-      return data;
-
+      return api.loadTodos();
     } catch (err) {
       // если не получится, то поймай (catch) ошибку и верни вызов хелпера передав в него конкретную ошибку rejectWithValue(err)
       return rejectWithValue('Failed to fetch all todos.');
     }
-
   },
   // createAsyncThunk можетпринимать третий параметр (опции)
   {
@@ -55,62 +52,28 @@ export const loadTodos = createAsyncThunk(
 //и thankAPI - объект из которокго можно достать dispatch, getState, экстра параметр
 export const createTodo = createAsyncThunk(
   '@@todos/create-todo',
-  async (title) => {
-    // теперь нам диспатч не нужен
-    const res = await fetch('http://localhost:3001/todos', {
-      // так как это пост запрос то нужно передать дополнительные параметры
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({title, completed: false})
-    })
-    const data = await res.json();
-    //console.log(data);
-    return data;
+  async (title, {extra: api}) => {
+    return api.createTodo(title)
   }
 );
 
 // создадим новый санк для переключения туду на завершенные 
 export const toggleTodo = createAsyncThunk(
   '@@todos/toggle-todo',
-  async (id, {getState}) => {
-    // на входе ждем id из UI и стейт,
-    // в стейте найдем туду с id равным полученому id из вне
+  async (id, {getState, extra: api}) => {
     const todo = getState().todos.entities.find(item => item.id === id);
 
-    // фечем делаем запрос на сервер, ссылка динамическая с добавлением id, также добавим настройки
-    const res = await fetch('http://localhost:3001/todos/' + id, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({completed: !todo.completed}), // в боди должно поменяться поле completed, поэтому передеем только его, 
-      // остальные пропускаем. Оно должно поменяться на противоположное
-    })
-    const data = await res.json();
-    //console.log(data);
-    return data;
+    return api.toggleTodo(id, {completed: !todo.completed});
   }
-)
+);
 
 // создадим санк удаления туду
 export const removeTodo = createAsyncThunk(
   '@@todos/remove-todo',
-  async (id) => {
-    // на входе ждем id из UI
-    // фечем делаем запрос на сервер, ссылка динамическая с добавлением id
-    const res = await fetch('http://localhost:3001/todos/' + id, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-    })
-    await res.json();
-  
-    return id;
+  async (id, {extra: api}) => {
+    return api.removeTodo(id);
   }
-)
+);
 
 const todoSlice = createSlice({
   name: '@@todos',
