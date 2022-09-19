@@ -23,6 +23,20 @@ export const loadTodos = createAsyncThunk(
       return rejectWithValue('Failed to fetch all todos.');
     }
 
+  },
+  // createAsyncThunk можетпринимать третий параметр (опции)
+  {
+    // ctrl + пробел покажет весь список опций, нам нужен condition
+    // значение у кондишн - это функция , которая также как и санк принимает два парамметра, первый - строка из UI, второй - объект с полями getState & extra
+    condition: (_, {getState, extra}) => {
+      // достанем из стейта туду ключ лоадинг и будем его проверять
+      const {loading} = getState().todos;
+      if (loading === 'loading') {
+        // если лоадинг === лоадинг то запрос не нужно делать.
+        // єто на тот случай если пользователь либо дважды кликнет, либо сделает другую операцию трубующую загрузки уже загружающегося стора
+        return false;
+      }
+    },
   }
 );
 
@@ -159,7 +173,7 @@ const todoSlice = createSlice({
         state.loading = 'idle';
         //state.error = action.error.message; // достанем текст ошибки из экшна
         // если мы используем подход с rejectWithValue(err), то текст ошибки должны доставать из пейлоада
-        state.error = action.payload || action.error.message; // если в рейлоаде что-то есть, то берем ошибку от туда, если нет, то из экшна
+        state.error = action.payload || action.error.message; // если в пейлоаде что-то есть, то берем ошибку от туда, если нет, то из экшна
       })
       // случай с fulfilled
       .addMatcher((action) => action.type.endsWith('/fulfilled'), (state, action) => {

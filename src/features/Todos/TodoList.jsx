@@ -16,7 +16,7 @@ export const TodoList = () => {
   const {error, loading} = useSelector(state => state.todos)
 
   useEffect(() => {
-    dispatch(loadTodos())
+    const promise = dispatch(loadTodos())
     // вызов метода unwrap позволит использовать и базовый зен и ловить кетчем ошибки
     // вместо unwrap можно использовать unwrapResult из toolkit
     .then(unwrapResult)
@@ -29,6 +29,14 @@ export const TodoList = () => {
       // теперь, когда ошибка заходит в пейлоад, текст можно достать от туда
       toast(err)
     });
+
+    // юзэффккт может возвращать функцию ретерн, которая отработает в момент розмантирования компонента
+    // так мы можем отменить загрузку еще до того как мы получим ответ, тем сэкономим ресурсы пользователя, 
+    // например когда он быстро переходит по страницам
+    return () => {
+      // если мы размонтируемся, то вызываем оборт у промиса
+      promise.abort();
+    }
   }, [dispatch])
 
   return (
