@@ -4,12 +4,18 @@ import { useSelector, useDispatch } from "react-redux";
 import { ToastContainer, toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 
-import {selectVisibleTodos, toggleTodo, removeTodo, loadTodos} from './todos-slice';
+import {selectVisibleTodos, toggleTodo, removeTodo, loadTodos, todosSelectors} from './todos-slice';
 
 
 export const TodoList = () => {
   const activeFilter = useSelector(state => state.filter)
-  const todos = useSelector(state => selectVisibleTodos(state, activeFilter));
+  const todos = useSelector(todosSelectors.selectAll); //выбираем все туду
+  // теперь todos это две сущности, первая это массив с id тудушек, 
+  // и вторая -  это объект entities где ключ - id туду, а значение - вся инфо о туду
+
+  // чтобы мапить не по всем туду, а по фильтрованым нужно использовать метод selectVisibleTodos() и передать туда все туду и отфильтрованные
+  const visibleTodos = selectVisibleTodos(todos, activeFilter); // теперь мапить по visibleTodos
+
   const dispatch = useDispatch();
 
   // реализация прелоудера и мониторинг ошибок
@@ -53,7 +59,7 @@ export const TodoList = () => {
       {/* если есть загрузка т.е лоадин то отрисуем сообщение о загрузке, или паказываем прилоадер */}
       {loading === 'loading' && <h2>loading...</h2>}
       {/* если нет загрузки т.е айдл и если нет ошибки тогда отрисовуем туду */}
-      {loading === 'idle' && !error && todos.map((todo) => (
+      {loading === 'idle' && !error && visibleTodos.map((todo) => (
         <li key={todo.id}>
           <input
             type="checkbox"

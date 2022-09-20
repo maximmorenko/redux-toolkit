@@ -1,6 +1,15 @@
-import {createSlice, createAsyncThunk} from '@reduxjs/toolkit';
+import {createSlice, createAsyncThunk, createEntityAdapter} from '@reduxjs/toolkit';
 
 import {resetToDefault} from '../Reset/reset-action';
+
+// создаем адаптер
+const todosAdapter = createEntityAdapter({
+  // принимает две настройки в виде объекта
+  // в первой (selectId) нужно указать какое поле указывае на нужный id
+  selectId: (todo) => todo.id,
+  // во второй () нужно указать поле по которому бубут сортироваться елементы, например по title (это поле необязательно)
+  //sortComparer: (todo) => todo.title,
+});
 
 // создадим новый санк для получения всех туду с сервера
 export const loadTodos = createAsyncThunk(
@@ -77,13 +86,20 @@ export const removeTodo = createAsyncThunk(
 
 const todoSlice = createSlice({
   name: '@@todos',
-  initialState: {
-    // чтобы воспользоваться ключами-экшнами из этого санка в экстра редюсере
-    entities: [], // наши туду
-    loading: 'idle', // поу молчанию бездействующий (idle), также может быть 'loading'
+  // на момент создания слайса мы будем по другому гененировать стейт
+  // по умолчанию єто будет пустой массив entities: [], необходимые значения будет добавлять вручную в веде объекта
+  initialState: todosAdapter.getInitialState({
+    loading: 'idle',
     error: null,
-
-  },
+  }),
+  
+  
+  // {
+  //   // чтобы воспользоваться ключами-экшнами из этого санка в экстра редюсере
+  //   entities: [], // наши туду
+  //   loading: 'idle', // поу молчанию бездействующий (idle), также может быть 'loading'
+  //   error: null,
+  // },
   reducers: {},
   extraReducers: (builder) => {
     builder
@@ -105,12 +121,16 @@ const todoSlice = createSlice({
       })
       // добавим кейс при событи удачной загрузки всех туду
       .addCase(loadTodos.fulfilled, (state, action) => {
-        state.entities = action.payload;
+        // теперь загружаем все туду через адаптер с помощью метода addMany, вызываем его и передаем пейлоад в стейт
+        todosAdapter.addMany(state, action.payload)
+        // state.entities = action.payload;
         state.loading = 'idle'; // также укажем что загрузка закончилась
       })
-      // если все норм и туду создано, то обрабатываем экшн фулфилд, пушим пэйлоад в стейт
+      // если все норм и туду создано, то обрабатываем экшн фулфилд
       .addCase(createTodo.fulfilled, (state, action) => {
-        state.entities.push(action.payload)
+        // для создания одного туду используем метод addOne и передаем в него текущий стейт и пейлоад
+        todosAdapter.addOne(state, action.payload)
+        // state.entities.push(action.payload)
       })
       // добавим кейс на событие тугл
       .addCase(toggleTodo.fulfilled, (state, action) => {
@@ -147,21 +167,29 @@ const todoSlice = createSlice({
 //export const {removeTodo} = todoSlice.actions;
 
 export const todoReducer = todoSlice.reducer;
+// чтобы выбрать нужные значения из текущего стейта воспользуемся методом адаптера getSelectors
+// и передаем в метод путь к ветке для нужных значений (в какой ветке стейта искать нужные значения)
+export const todosSelectors = todosAdapter.getSelectors(state => state.todos);
+// теперь todosSelectors имеет пять методов выборки
+// todosSelectors.selectAll(); // выбрать всё
+// todosSelectors.selectById(); // выбрать по id
+// todosSelectors.selectEntities();
+// todosSelectors.selectIds();
+// todosSelectors.selectTotal(); // выбрать общее кол-во
 
-
-export const selectVisibleTodos = (state, filter) => {
+export const selectVisibleTodos = (todos, filter) => {
   switch (filter) {
     case 'all': {
-      return state.todos.entities; // теперь туду достаем из энтитис
+      return todos; // теперь туду достаем из todos
     }
     case 'active': {
-      return state.todos.entities.filter(todo => !todo.completed); // теперь туду достаем из энтитис
+      return todos.filter(todo => !todo.completed); // теперь туду достаем из todos
     }
     case 'completed': {
-      return state.todos.entities.filter(todo => todo.completed); // теперь туду достаем из энтитис
+      return todos.filter(todo => todo.completed); // теперь туду достаем из todos
     }
     default: {
-      return state.todos;
+      return todos;
     }
   }
 }
