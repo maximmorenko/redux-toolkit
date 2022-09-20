@@ -70,7 +70,7 @@ export const createTodo = createAsyncThunk(
 export const toggleTodo = createAsyncThunk(
   '@@todos/toggle-todo',
   async (id, {getState, extra: api}) => {
-    const todo = getState().todos.entities.find(item => item.id === id);
+    const todo = getState().todos.entities[id]; // теперь достаточно передать поле id из объекта entities
 
     return api.toggleTodo(id, {completed: !todo.completed});
   }
@@ -137,20 +137,38 @@ const todoSlice = createSlice({
         // достанем из пецлоад обновленный туду
         const updatedTodo = action.payload;
 
-        const index = state.entities.findIndex(todo => todo.id === updatedTodo.id);
-        state.entities[index] = updatedTodo;
+        // const index = state.entities.findIndex(todo => todo.id === updatedTodo.id);
+        // state.entities[index] = updatedTodo;
+        // теперь все это не нужно
+
+        // обновляем через адаптер мотодом updateOne, передаем в него стейт и укаываем что именно обновить (в виде объекта)
+        // в данном случае хотим поменять туду с конкретным id. берем его из пейлоада
+        // также нужно указать что именно поменять у этого туду (второй параметр) поле changes
+        todosAdapter.updateOne(state, {
+          id: updatedTodo.id,
+          changes: {
+            // меняем комплитед на то значение, которое получили через пейлоад
+            completed: updatedTodo.completed,
+          }
+        })
       })
       // кейс на удаление туду
       .addCase(removeTodo.fulfilled, (state, action) => {
         // перезапишим ентитис в стейте
         // и отфильтруем, проверим айди каждого елемената на равенство с удаленным в action.payload
-        state.entities = state.entities.filter(todo => todo.id !== action.payload)
+        // state.entities = state.entities.filter(todo => todo.id !== action.payload)
+
+        // теперь удаляем через адаптер
+        todosAdapter.removeOne(state, action.payload);
       })
       // проверяем окончание action.type, если оно = pending, то для вех этих экшнов выполняется одно и то же действие
-      .addMatcher((action) => action.type.endsWith('/pending'), (state, action) => {
-        state.loading = 'loading';
-        state.error = null;
-      }) 
+      // эта операция проводилась в ознакомительных целях. 
+      // теперь она не нужна, так как приводит к дерганию при любом действии, оставим только на загрузке
+      // .addMatcher((action) => action.type.endsWith('/pending'), (state, action) => {
+      //   state.loading = 'loading';
+      //   state.error = null;
+      // }) 
+
       // случай с ошибкой
       .addMatcher((action) => action.type.endsWith('/rejected'), (state, action) => {
         state.loading = 'idle';
